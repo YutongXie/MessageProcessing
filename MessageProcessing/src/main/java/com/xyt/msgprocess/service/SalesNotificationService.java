@@ -47,9 +47,7 @@ public class SalesNotificationService implements NotificationService {
 	}
 	
 	private void storeNotification(List<Notification> noti) {
-		for (Notification notification : noti) {
-			store(notification);
-		}
+		noti.stream().forEach((notification) -> store(notification));
 	}
 
 	private void store(Notification notification) {
@@ -97,7 +95,9 @@ public class SalesNotificationService implements NotificationService {
 		List<Notification> notiList = map.get(productType);
 		if(notiList == null)
 			return;
-		for (Notification existNoti : notiList) {
+		
+		notiList.stream().forEach((existNoti) -> {
+			
 			switch (adjOperation) {
 			case ADD:
 				existNoti.setValue(existNoti.getValue().add(adjValue));
@@ -113,7 +113,8 @@ public class SalesNotificationService implements NotificationService {
 				log.warning("Invalid operation");
 				break;
 			}
-		}
+			
+		});
 	}
 	
 	private void pausing() throws Exception{

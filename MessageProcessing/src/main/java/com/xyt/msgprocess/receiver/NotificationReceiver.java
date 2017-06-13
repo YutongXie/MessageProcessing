@@ -2,7 +2,6 @@ package com.xyt.msgprocess.receiver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -42,21 +41,17 @@ public class NotificationReceiver implements MessageListener {
 
 				// 1. parse TextMessage
 				Gson gson = new Gson();
-				List<Notification> notiList = gson.fromJson(msgText, new TypeToken<List<Notification>>() {
-				}.getType());
+				List<Notification> notiList = gson.fromJson(msgText, new TypeToken<List<Notification>>() {}.getType());
 				if (notiList == null || notiList.size() == 0) {
 					log.warning("Invalid message");
 				}
 				HashMap<Type, List<Notification>> map = classify(notiList);
 
-				for (Iterator iterator = map.keySet().iterator(); iterator.hasNext();) {
-					Type type = (Type) iterator.next();
-					List<Notification> subList = map.get(type);
-
+				map.forEach((type, subList) -> {
 					// 2. process notification
-					NotificationProcessor processor = new NotificationProcessor();
-					processor.process(type, subList);
-				}
+					new NotificationProcessor().process(type, subList);;
+					
+				});
 
 			} else {
 				log.warning("JMS Message type not support");
@@ -72,10 +67,8 @@ public class NotificationReceiver implements MessageListener {
 		if (list == null || list.size() == 0)
 			return map;
 
-		for (Notification notification : list) {
-			Type type = notification.getType() != null ? notification.getType() : null;
-			if (type == null)
-				continue;
+		list.stream().filter(notification -> notification.getType() !=null).forEach(notification -> {
+			Type type = notification.getType();
 			if (map.containsKey(type)) {
 				map.get(type).add(notification);
 			} else {
@@ -83,7 +76,8 @@ public class NotificationReceiver implements MessageListener {
 				subList.add(notification);
 				map.put(type, subList);
 			}
-		}
+			
+		});
 		return map;
 	}
 

@@ -1,11 +1,17 @@
 package com.xyt.msgprocess.entity;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Notification implements Cloneable {
+public class Notification implements Cloneable, Serializable{
+	private static final long serialVersionUID = -9209864678378757860L;
 	private Type type;
 	private String productType;
 	private BigDecimal value;
@@ -137,6 +143,24 @@ public class Notification implements Cloneable {
 			notiList.add(clone());
 		}
 		return notiList;
+	}
+	
+	public Notification deepClone() {
+		Notification newNoti = null;
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oops = new ObjectOutputStream(baos);
+			oops.writeObject(this);
+			oops.close();
+			
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			newNoti = (Notification)ois.readObject();
+			ois.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return newNoti;
 	}
 
 }
